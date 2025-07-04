@@ -1,15 +1,13 @@
 #include <pspgu.h>
 #include <psppower.h>
 #include <pspdisplay.h>
-// #include <pspsdk.h>
 #include <pspkernel.h>
 #include <pspctrl.h>
-// #include <malloc.h>
-// #include <cstring>
 
+#define u32          unsigned int
+#define u16          unsigned short int
 #define hwp          volatile u32*
 #define hw(addr)     (*((hwp)(addr)))
-#define fhw(addr)    (*(float*)&hw(addr))
 
 PSP_MODULE_INFO("vfpu-sr", 0, 1, 1);
 PSP_HEAP_SIZE_KB(-1024);
@@ -20,7 +18,6 @@ u32 colors[8] = {
   0xffffffff,
   0xff00ff00,
   0xffffffff,
-  
   0xff0000ff,
   0xffffffff,
   0xff00ffff,
@@ -28,6 +25,7 @@ u32 colors[8] = {
 };
 
 void initColors() {
+  // load color to vfpu matrix using general register
   asm volatile (
     "or   $t4, %0, $zero\n"
     "lw   $t0, 0x00($t4)\n"
@@ -54,14 +52,23 @@ void initColors() {
 
 void genPixels() {
   asm volatile (
+    // swizzle column a
     "vpfxs      [Y, Z, W, X]\n" // or "vpfxs      Y, Z, W, X\n" on other versions
-    "vmov.q     c300, c000\n"
-    "vmov.q     c000, c300\n"
-    //
-    //
+    "vmov.q     c000, c000\n"
+    // swizzle column b
+    "vpfxs      [Y, Z, W, X]\n"
+    "vmov.q     c100, c100\n"
+    // swap
+    "vmov.s     s020, s003\n"
+    "vmov.s     s003, s103\n"
+    "vmov.s     s103, s020\n"
+    // 8888 to 565
     "vt5650.q   c200, c000\n"
     "vt5650.q   c202, c100\n"
-    "sv.q       c200, 0x44010000\n"
+    // copy to vram
+    "sv.q       c200, 0x44008000\n"
+    "sv.q       c200, 0x44008400\n"
+    "sv.q       c200, 0x44008800\n"
     :
     :
     :
@@ -83,9 +90,9 @@ int main(int argc, char **argv) {
     genPixels();
     sceCtrlPeekBufferPositive(&ctl, 1);
     pspDebugScreenSetXY(0, 1);
-    pspDebugScreenPrintf("Random pixel color generation");
+    pspDebugScreenPrintf("Left pixels value: 0x%04x         ", (u16)hw(0x44008000));
     sceDisplayWaitVblankStart();
-    sceKernelDelayThread(1000000);
+    sceKernelDelayThread(500000);
   } while(!(ctl.Buttons & PSP_CTRL_HOME));
   
   pspDebugScreenClear();
