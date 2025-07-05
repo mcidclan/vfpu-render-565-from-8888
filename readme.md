@@ -1,8 +1,12 @@
-## Code Sample VFPU Simple Rendering
+## VFPU Simple Rendering Code Sample
 
-This sample demonstrates the use of the VFPU to render pixels directly to the screen.
-8 colors are loaded into the VFPU from Allegrex registers into 2 columns of 4 elements each.
-These columns are then swizzled upward, and their lowest values are swapped.
-Finally, both columns are converted to the RGB565 color format and written directly to VRAM by the VFPU itself.
+This sample shows how to use the VFPU to render pixels directly to the screen.
+
+An array of 8×4 RGBA colors is loaded into VFPU registers using Allegrex general-purpose loads.
+The 8 columns (4 values each) are then swizzled upward (`Y→X, Z→Y, W→Z, X→W`).
+After swizzling, the lowest values of each column are rotated into the next one, creating a vertical loop across all columns.
+
+Once transformed, the colors are converted from 8888 format to RGB565 using VFPU instructions, and finally written directly to VRAM.
+
 
 *m-c/d*

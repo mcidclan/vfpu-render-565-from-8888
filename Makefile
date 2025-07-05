@@ -21,7 +21,7 @@ LIBS = -lstdc++ -lpsppower -lpspgu
 PSP_EBOOT_SFO = $(BINOUT)PARAM.SFO
 EXTRA_TARGETS = $(BINOUT)EBOOT.PBP
 PSP_EBOOT = $(EXTRA_TARGETS)
-PSP_EBOOT_TITLE = VFPU Simple Rendering
+PSP_EBOOT_TITLE = VFPU 565 Rendering
 
 PSPSDK=$(shell psp-config --pspsdk-path)
 include $(PSPSDK)/lib/build.mak
