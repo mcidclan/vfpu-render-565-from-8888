@@ -76,21 +76,23 @@ void genPixels() {
   asm volatile (
     // swizzle all columns
     "vpfxs      [Y, Z, W, X]\n" /* /!\ remove brackets if compilation fails */
+    "mfvc       $t0, $128\n"
     "vmov.q     c000, c000\n"
-    "vpfxs      [Y, Z, W, X]\n"
+    "mtvc       $t0, $128\n"
     "vmov.q     c010, c010\n"
-    "vpfxs      [Y, Z, W, X]\n"
+    "mtvc       $t0, $128\n"
     "vmov.q     c020, c020\n"
-    "vpfxs      [Y, Z, W, X]\n"
+    "mtvc       $t0, $128\n"
     "vmov.q     c030, c030\n"
-    "vpfxs      [Y, Z, W, X]\n"
+    "mtvc       $t0, $128\n"
     "vmov.q     c100, c100\n"
-    "vpfxs      [Y, Z, W, X]\n"
+    "mtvc       $t0, $128\n"
     "vmov.q     c110, c110\n"
-    "vpfxs      [Y, Z, W, X]\n"
+    "mtvc       $t0, $128\n"
     "vmov.q     c120, c120\n"
-    "vpfxs      [Y, Z, W, X]\n"
+    "mtvc       $t0, $128\n"
     "vmov.q     c130, c130\n"
+
 
     // swap: save first lower value
     "vmov.s     s300, s003\n"
@@ -134,7 +136,8 @@ void genPixels() {
     "vsub.s     s400, s400, s400[1]\n"
 
     "vcmp.s     NZ, s400, s400\n"
-    "nop\n"
+    "vsync\n"
+    
     "bvt        0, 1b\n"
     "nop\n"
     
